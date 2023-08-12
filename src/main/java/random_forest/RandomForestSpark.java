@@ -21,12 +21,12 @@ public class RandomForestSpark {
 	@SuppressWarnings({ "resource", "serial" })
 	public static void main(String[] args) {
 		// Need to change
-		System.setProperty("hadoop.home.dir", "C:\\hadoop");
+		//System.setProperty("hadoop.home.dir", "C:\\hadoop");
 
 		SparkConf sparkConf = new SparkConf().setAppName("JavaRandomForestClassificationExample").setMaster("local[*]");
 		JavaSparkContext jsc = new JavaSparkContext(sparkConf);
 		// Load and parse the data file.
-		String datapath = "data/histoGram.txt";
+		String datapath = "data/histoGramKTH.txt";
 		JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), datapath).toJavaRDD();
 		// Split the data into training and test sets (30% held out for testing)
 		JavaRDD<LabeledPoint>[] splits = data.randomSplit(new double[] { 0.7, 0.3 });
@@ -35,7 +35,7 @@ public class RandomForestSpark {
 
 		// Train a RandomForest model.
 		// Empty categoricalFeaturesInfo indicates all features are continuous.
-		int numClasses = 3;
+		int numClasses = 10;
 		Map<Integer, Integer> categoricalFeaturesInfo = new HashMap<Integer, Integer>();
 		int numTrees = 3; // Use more in practice.
 		String featureSubsetStrategy = "auto"; // Let the algorithm choose.
