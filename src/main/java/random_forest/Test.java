@@ -1,7 +1,6 @@
 package random_forest;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -9,7 +8,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.regression.LabeledPoint;
-import org.apache.spark.mllib.tree.RandomForest;
 import org.apache.spark.mllib.tree.model.RandomForestModel;
 import org.apache.spark.mllib.util.MLUtils;
 
@@ -26,47 +24,49 @@ public class Test {
 		SparkConf sparkConf = new SparkConf().setAppName("JavaRandomForestClassificationExample").setMaster("local[*]");
 		JavaSparkContext jsc = new JavaSparkContext(sparkConf);
 		// Load and parse the data file.
-		String datapath = "data/testHisto.txt";
+		String datapath = "data/imtius.txt";
 		JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), datapath).toJavaRDD();
-		// Split the data into training and test sets (30% held out for testing)
+		// Split the data into training and test sets (100% held out for testing)
 		JavaRDD<LabeledPoint>[] splits = data.randomSplit(new double[] { 0.0, 1.0 });
-		JavaRDD<LabeledPoint> trainingData = splits[0];
 		JavaRDD<LabeledPoint> testData = splits[1];
 
-		// Train a RandomForest model.
-		// Empty categoricalFeaturesInfo indicates all features are continuous.
-		int numClasses = 10;
-		Map<Integer, Integer> categoricalFeaturesInfo = new HashMap<Integer, Integer>();
-		int numTrees = 3; // Use more in practice.
-		String featureSubsetStrategy = "auto"; // Let the algorithm choose.
-		String impurity = "gini";
-		int maxDepth = 5;
-		int maxBins = 32;
-		int seed = 12345;
-
-		RandomForestModel model = RandomForest.trainClassifier(trainingData, numClasses, categoricalFeaturesInfo,
-				numTrees, featureSubsetStrategy, impurity, maxDepth, maxBins, seed);
+		// load model
+		RandomForestModel sameModel = RandomForestModel.load(jsc.sc(),
+				"target/tmp/myRandomForestClassificationModelTrain3");
 
 		// Evaluate model on test instances and compute test error
 		JavaPairRDD<Double, Double> predictionAndLabel = testData
-				.mapToPair(p -> new Tuple2<Double, Double>(model.predict(p.features()), p.label()));
-		//double testErr = predictionAndLabel.filter(pl -> !pl._1().equals(pl._2())).count() / (double) testData.count();
-		
-		Double testErr = (double) (predictionAndLabel.filter(
-						new Function<Tuple2<Double, Double>, Boolean>() {
-							@Override
-							public Boolean call(Tuple2<Double, Double> pl) {
-								System.out.println(pl._1() + " " + pl._2());
-								return !pl._1().equals(pl._2());
-							}
-						}).count() / testData.count());
-		
-		System.out.println("Test Error: " + testErr);
-		System.out.println("Test Accuracy: " + (1 - testErr));
-		
+				.mapToPair(p -> new Tuple2<Double, Double>(sameModel.predict(p.features()), p.label()));
 
-		// Save and load model
-		RandomForestModel sameModel = RandomForestModel.load(jsc.sc(), "target/tmp/myRandomForestClassificationModel");
-	}
+		Double testErr = (double) (predictionAndLabel.filter(
+				new Function<Tuple2<Double, Double>, Boolean>() {
+					int t1 = 0, t2 = 0, t3 = 0;
+
+					@Override
+					public Boolean call(Tuple2<Double, Double> pl) {
+						if (pl._1() == 0) {
+							t1++;
+						} else if (pl._1() == 1) {
+							t2++;
+						} else if (pl._1() == 2) {
+							t3++;
+						}
+						//System.out.println(pl._1() + " " + pl._2()+" " +t1+" "+t2+" "+t3);
+						// for printing purpose
+						if(t1!=0) {
+							System.out.println("Zia");
+						}else if(t2!=0){
+							System.out.println("Imtius");
+						}else{
+							System.out.println("Sochcha");
+						}
+
+						return !pl._1().equals(pl._2());
+					}
+				}).count() / testData.count());
+
+		// print
+
+	}// main end
 
 }
