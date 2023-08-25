@@ -21,12 +21,12 @@ public class Train {
 	@SuppressWarnings({ "resource", "serial" })
 	public static void main(String[] args) {
 		// Need to change
-		//System.setProperty("hadoop.home.dir", "C:\\hadoop");
+		System.setProperty("hadoop.home.dir", "/usr/local/hadoop/");
 
 		SparkConf sparkConf = new SparkConf().setAppName("JavaRandomForestClassificationExample").setMaster("local[*]");
 		JavaSparkContext jsc = new JavaSparkContext(sparkConf);
 		// Load and parse the data file.
-		String datapath = "data/histoGramKTH.txt";
+		String datapath = "data/trainHisto.txt";
 		JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), datapath).toJavaRDD();
 		// Split the data into training and test sets (30% held out for testing)
 		JavaRDD<LabeledPoint>[] splits = data.randomSplit(new double[] { 1.0, 0.0 });
@@ -52,22 +52,10 @@ public class Train {
 				.mapToPair(p -> new Tuple2<Double, Double>(model.predict(p.features()), p.label()));
 		double testErr = predictionAndLabel.filter(pl -> !pl._1().equals(pl._2())).count() / (double) testData.count();
 		
-//		Double testErr = (double) (predictionAndLabel.filter(
-//						new Function<Tuple2<Double, Double>, Boolean>() {
-//							@Override
-//							public Boolean call(Tuple2<Double, Double> pl) {
-//								System.out.println(pl._1() + " " + pl._2());
-//								return !pl._1().equals(pl._2());
-//							}
-//						}).count() / testData.count());
-		System.out.println("Test Error: " + testErr);
-		System.out.println("Test Accuracy: " + (1 - testErr));
 		System.out.println("Learned classification forest model:\n" + model.toDebugString());
 		
-
-		// Save and load model
+		// Save model
 		model.save(jsc.sc(), "target/tmp/myRandomForestClassificationModel");
-		RandomForestModel sameModel = RandomForestModel.load(jsc.sc(), "target/tmp/myRandomForestClassificationModel");
 	}
 
 }
