@@ -7,7 +7,7 @@ public class FileHandling {
 
     //image file path started
     public void imgFilePath() throws IOException {
-        String mainDirectory = "data/test";
+        String mainDirectory = "data/data2";
         File mainFolder = new File(mainDirectory);
         String[] folderList = mainFolder.list();
         for (int i = 0; i < folderList.length; i++) {

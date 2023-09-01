@@ -19,12 +19,12 @@ public class Test {
 	@SuppressWarnings({ "resource", "serial" })
 	public static void main(String[] args) {
 		// Need to change
-		System.setProperty("hadoop.home.dir", "/usr/local/hadoop/");
+		System.setProperty("hadoop.home.dir", "C:\\hadoop");
 
 		SparkConf sparkConf = new SparkConf().setAppName("JavaRandomForestClassificationExample").setMaster("local[*]");
 		JavaSparkContext jsc = new JavaSparkContext(sparkConf);
 		// Load and parse the data file.
-		String datapath = "data/testHisto.txt";
+		String datapath = "data/sochcha.txt";
 		JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), datapath).toJavaRDD();
 		// Split the data into training and test sets (100% held out for testing)
 		JavaRDD<LabeledPoint>[] splits = data.randomSplit(new double[] { 0.0, 1.0 });
@@ -32,7 +32,7 @@ public class Test {
 
 		// load model
 		RandomForestModel sameModel = RandomForestModel.load(jsc.sc(),
-				"target/tmp/myRandomForestClassificationModelTrain3");
+				"target/tmp/d2HistoModel");
 
 		// Evaluate model on test instances and compute test error
 		JavaPairRDD<Double, Double> predictionAndLabel = testData
@@ -45,26 +45,15 @@ public class Test {
 					@Override
 					public Boolean call(Tuple2<Double, Double> pl) {
 						//System.out.println(pl._1() + " " + pl._2());
-						t++;
-						if (pl._1() == 0) {
-							t1++;
-						} else if (pl._1() == 1) {
-							t2++;
-						} else if (pl._1() == 2) {
-							t3++;
+						System.out.println("============================================");
+						if(pl._1()==0) {
+							System.out.println("\t\tZia");
+						}else if(pl._1()==1) {
+							System.out.println("\t\tImtius");
+						}else {
+							System.out.println("\t\tSochcha");
 						}
-						System.out.println(t);
-						if(t==4){
-							if(t1>t2&&t1>t3){
-								System.out.println("Zia");
-							}else if(t2>t3&&t2>t3){
-								System.out.println("Imtius");
-							}else if(t3>t2&&t3>t1){
-								System.out.println("Sochcha");
-							} else {
-							System.out.println("Not Found in our database");
-						}
-						}
+						System.out.println("============================================");
 						return !pl._1().equals(pl._2());
 					}
 				}).count() / testData.count());
