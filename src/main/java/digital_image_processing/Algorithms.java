@@ -74,7 +74,7 @@ public class Algorithms {
 
     // searching and saving in histogram txt
     public void searchIng(int[] arr,int k) throws IOException {
-        String histoPath = "data/d2Histo.txt";
+        String histoPath = "data/test.txt";
         int j, max = 255;
 
         for (int i = 0; i <= max; i++) {
