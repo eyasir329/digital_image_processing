@@ -24,7 +24,7 @@ public class Test {
 		SparkConf sparkConf = new SparkConf().setAppName("JavaRandomForestClassificationExample").setMaster("local[*]");
 		JavaSparkContext jsc = new JavaSparkContext(sparkConf);
 		// Load and parse the data file.
-		String datapath = "data/test.txt";
+		String datapath = "data/sochcha.txt";
 		JavaRDD<LabeledPoint> data = MLUtils.loadLibSVMFile(jsc.sc(), datapath).toJavaRDD();
 		// Split the data into training and test sets (100% held out for testing)
 		JavaRDD<LabeledPoint>[] splits = data.randomSplit(new double[] { 0.0, 1.0 });
